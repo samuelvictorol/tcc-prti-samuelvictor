@@ -1,6 +1,8 @@
 # EJUG Notify — App TCC Gate 3
 
-Sistema institucional para cadastro de contatos, turmas, templates e campanhas de notificação via **WhatsApp Business Platform / Cloud API**.
+🖥 Sistema institucional para cadastro de contatos, turmas, templates e campanhas de notificação via **WhatsApp Business Platform / Cloud API**.
+
+<img width="1717" height="1304" alt="image" src="https://github.com/user-attachments/assets/a9b28f06-c536-497c-961c-1c387e860b0d" />
 
 Repositório do projeto:
 
