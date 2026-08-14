@@ -1,0 +1,126 @@
+name: notify-app
+
+services:
+  mongo:
+    image: mongo:7.0-jammy
+    restart: unless-stopped
+    command: ["mongod", "--bind_ip_all"]
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    networks:
+      - notify_internal
+
+  redis:
+    image: redis:7.4-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks:
+      - notify_internal
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    init: true
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      MONGODB_URI: ${MONGODB_URI:-mongodb://mongo:27017/notify_app}
+      REDIS_URL: redis://redis:6379
+      REDIS_REQUIRED: "true"
+      PUBLIC_APP_URL: ${PUBLIC_APP_URL:-http://localhost:8080}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080}
+      TRUST_PROXY: ${TRUST_PROXY:-1}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:?Defina JWT_ACCESS_SECRET no arquivo .env}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?Defina JWT_REFRESH_SECRET no arquivo .env}
+      JWT_ACCESS_TTL: ${JWT_ACCESS_TTL:-15m}
+      JWT_REFRESH_TTL: ${JWT_REFRESH_TTL:-30d}
+      PROFILE_JWT_SECRET: ${PROFILE_JWT_SECRET:-}
+      PROFILE_JWT_TTL: ${PROFILE_JWT_TTL:-10m}
+      PROFILE_CODE_TTL_SECONDS: ${PROFILE_CODE_TTL_SECONDS:-600}
+      PROFILE_CODE_MAX_ATTEMPTS: ${PROFILE_CODE_MAX_ATTEMPTS:-5}
+      PROFILE_CODE_MAX_REQUESTS: ${PROFILE_CODE_MAX_REQUESTS:-5}
+      PROFILE_CODE_WINDOW_SECONDS: ${PROFILE_CODE_WINDOW_SECONDS:-3600}
+      PROFILE_CODE_RESEND_SECONDS: ${PROFILE_CODE_RESEND_SECONDS:-60}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:?Defina ENCRYPTION_KEY no arquivo .env}
+      SEARCH_HASH_KEY: ${SEARCH_HASH_KEY:?Defina SEARCH_HASH_KEY no arquivo .env}
+      INVITE_TOKEN_SECRET: ${INVITE_TOKEN_SECRET:?Defina INVITE_TOKEN_SECRET no arquivo .env}
+      MONGODB_ENSURE_INDEXES: ${MONGODB_ENSURE_INDEXES:-true}
+      CONVERSATION_BACKUP_RETENTION_DAYS: ${CONVERSATION_BACKUP_RETENTION_DAYS:-90}
+      ADMIN1_EMAIL: ${ADMIN1_EMAIL:-admin@notify.local}
+      ADMIN1_PASSWORD: ${ADMIN1_PASSWORD:?Defina ADMIN1_PASSWORD no arquivo .env}
+      TELEGRAM_WEBHOOK_SECRET: ${TELEGRAM_WEBHOOK_SECRET:-}
+      TELEGRAM_BOT_USERNAME: ${TELEGRAM_BOT_USERNAME:-}
+      START_NOTIFY_WHATSAPP_PERMISSION: ${START_NOTIFY_WHATSAPP_PERMISSION:-/notify-me}
+      START_VERIFY_TELEGRAM_PERMISSION: ${START_VERIFY_TELEGRAM_PERMISSION:-/verify-me}
+      WHATSAPP_CLOUD_API_VERSION: ${WHATSAPP_CLOUD_API_VERSION:-v25.0}
+      WHATSAPP_CLOUD_DISPLAY_PHONE_NUMBER: ${WHATSAPP_CLOUD_DISPLAY_PHONE_NUMBER:-}
+      RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS:-60000}
+      AUTH_RATE_LIMIT_MAX: ${AUTH_RATE_LIMIT_MAX:-10}
+      RATE_LIMIT_MAX: ${RATE_LIMIT_MAX:-300}
+      WEBHOOK_RATE_LIMIT_MAX: ${WEBHOOK_RATE_LIMIT_MAX:-20000}
+      IP_BLOCK_AFTER: ${IP_BLOCK_AFTER:-20}
+      IP_BLOCK_SECONDS: ${IP_BLOCK_SECONDS:-900}
+    ports:
+      - "127.0.0.1:${API_PORT:-3000}:3000"
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+    networks:
+      - notify_internal
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: /api
+    restart: unless-stopped
+    environment:
+      PORT: "80"
+      API_UPSTREAM: api:3000
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT:-8080}:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - notify_internal
+
+networks:
+  notify_internal:
+    driver: bridge
+
+volumes:
+  mongo_data:
+  redis_data:

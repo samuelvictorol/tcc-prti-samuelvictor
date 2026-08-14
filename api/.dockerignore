@@ -1,0 +1,45 @@
+# Dependencias e saidas locais nunca devem entrar no contexto de build.
+node_modules/
+coverage/
+test-results/
+.nyc_output/
+
+# Segredos e configuracoes locais. Exemplos nao sao necessarios no runtime.
+.env
+.env.*
+*.env
+*.env.*
+
+# Metadados de VCS, IDE, Codex e validacoes locais.
+.git/
+.gitignore
+.gitattributes
+.github/
+.codex*
+.docker-validation-config/
+.gate5-package/
+.vscode/
+.idea/
+
+# Caches, logs e temporarios.
+*.log
+*.tmp
+*.temp
+*.bak
+npm-debug.log*
+.cache/
+.npm/
+__pycache__/
+.pytest_cache/
+.DS_Store
+Thumbs.db
+
+# Artefatos legados que nao fazem parte da API oficial.
+.wwebjs_auth/
+.wwebjs_cache/
+
+# Documentacao e testes nao sao necessarios na imagem de producao.
+README.md
+render.env.example
+test/
+Dockerfile*

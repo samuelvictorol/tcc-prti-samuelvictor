@@ -1,0 +1,42 @@
+# Dependencias, build e cobertura locais.
+node_modules/
+dist/
+coverage/
+test-results/
+
+# Segredos e configuracoes locais. Variaveis Vite entram somente por ARG/ENV.
+.env
+.env.*
+*.env
+*.env.*
+
+# Metadados de VCS, IDE, Codex e validacoes locais.
+.git/
+.gitignore
+.gitattributes
+.github/
+.codex*
+.docker-validation-config/
+.gate5-package/
+.vscode/
+.idea/
+
+# Caches, logs e temporarios.
+*.log
+*.tmp
+*.temp
+*.bak
+npm-debug.log*
+.cache/
+.npm/
+.vite/
+__pycache__/
+.pytest_cache/
+.DS_Store
+Thumbs.db
+
+# Materiais que nao participam do bundle de producao.
+README.md
+render.env.example
+test/
+Dockerfile*
