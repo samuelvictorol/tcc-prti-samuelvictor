@@ -8,7 +8,8 @@ Repositório canônico da entrega: [samuelvictorol/tcc-prti-samuelvictor](https:
 
 | Item | Conteúdo |
 |---|---|
-| [Relatório Técnico Gate 5](docs/Relatorio-Tecnico-Notify-Flow-Gate-5-Samuel-Victor-Oliveira-Lima.docx) | Evolução do Gate 4, arquitetura implementada, testes, resultados, limitações e próximos passos. |
+| [Relatório Técnico Gate 5.pdf](docs/Relatorio-Tecnico-Notify-Flow-Gate-5-Samuel-Victor-Oliveira-Lima.pdf) | Evolução do Gate 4, arquitetura implementada, testes, resultados, limitações e próximos passos. |
+| [Relatório Técnico Gate 5.docx](docs/Relatorio-Tecnico-Notify-Flow-Gate-5-Samuel-Victor-Oliveira-Lima.docx) | Evolução do Gate 4, arquitetura implementada, testes, resultados, limitações e próximos passos. |
 | [Índice da documentação](docs/README.md) | Mapa dos documentos técnicos e das evidências do projeto. |
 | [API](api/README.md) | Camadas, contratos, segurança, persistência, filas, integrações e webhooks. |
 | [Frontend](frontend/README.md) | Rotas, componentes, estado, realtime, build e publicação. |
